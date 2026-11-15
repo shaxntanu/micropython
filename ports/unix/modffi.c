@@ -33,7 +33,6 @@
 
 #if MICROPY_PY_FFI
 
-#include <assert.h>
 #include <string.h>
 #include <errno.h>
 #include <dlfcn.h>
@@ -484,10 +483,10 @@ static ffi_union_t ffi_int_obj_to_ffi_union(mp_obj_t o, const char argtype) {
 }
 
 static mp_obj_t ffifunc_call(mp_obj_t self_in, size_t n_args, size_t n_kw, const mp_obj_t *args) {
-    (void)n_kw;
     mp_obj_ffifunc_t *self = MP_OBJ_TO_PTR(self_in);
-    assert(n_kw == 0);
-    assert(n_args == self->cif.nargs);
+    if (n_kw != 0 || n_args != self->cif.nargs) {
+        mp_raise_TypeError(MP_ERROR_TEXT("wrong number of arguments"));
+    }
 
     ffi_union_t values[n_args];
     void *valueptrs[n_args];
